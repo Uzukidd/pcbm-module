@@ -138,19 +138,33 @@ def load_cub_data(pkl_paths, use_attr, no_img, batch_size, uncertain_label=False
     """
     is_training = any(['train.pkl' in f for f in pkl_paths])
     if is_training:
-        transform = transforms.Compose([
-            transforms.ColorJitter(brightness=32/255, saturation=(0.5, 1.5)),
-            transforms.RandomResizedCrop(resol),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(), 
-            normalizer
-            ])
+        if normalizer is not None:
+            transform = transforms.Compose([
+                transforms.ColorJitter(brightness=32/255, saturation=(0.5, 1.5)),
+                transforms.RandomResizedCrop(resol),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(), 
+                normalizer
+                ])
+        else:
+            transform = transforms.Compose([
+                transforms.ColorJitter(brightness=32/255, saturation=(0.5, 1.5)),
+                transforms.RandomResizedCrop(resol),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor()
+                ])
     else:
-        transform = transforms.Compose([
-            transforms.CenterCrop(resol),
-            transforms.ToTensor(), 
-            normalizer
-            ])
+        if normalizer is not None:
+            transform = transforms.Compose([
+                transforms.CenterCrop(resol),
+                transforms.ToTensor(), 
+                normalizer
+                ])
+        else:
+            transform = transforms.Compose([
+                transforms.CenterCrop(resol),
+                transforms.ToTensor()
+                ])
 
     dataset = CUBDataset(pkl_paths, use_attr, no_img, uncertain_label, image_dir, n_class_attr, n_classes, transform)
 

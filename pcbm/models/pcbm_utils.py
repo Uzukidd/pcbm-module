@@ -55,7 +55,10 @@ class PosthocLinearCBM(nn.Module):
         self.classifier.weight.data = torch.tensor(weights).to(self.classifier.weight.device)
         self.classifier.bias.data = torch.tensor(bias).to(self.classifier.weight.device)
         return 1
-
+    
+    def get_linear_weights(self):
+        return self.classifier.weight.clone().detach()
+            
     def analyze_classifier(self, k=5, print_lows=False):
         weights = self.classifier.weight.clone().detach()
         output = []

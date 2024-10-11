@@ -26,18 +26,21 @@ class ResNetTop(nn.Module):
         return x
 
 
-def get_model(args, backbone_name="resnet18_cub", full_model=False):
+def get_model(args, backbone_name="resnet18_cub", download_root:str=None, full_model=False):
+    if download_root is None:
+        download_root = args.out_dir
+        
     if "clip" in backbone_name:
         import clip
         # We assume clip models are passed of the form : clip:RN50
         clip_backbone_name = backbone_name.split(":")[1]
-        backbone, preprocess = clip.load(clip_backbone_name, device=args.device, download_root=args.out_dir)
+        backbone, preprocess = clip.load(clip_backbone_name, device=args.device, download_root=download_root)
         backbone = backbone.eval()
         model = None
     
     elif backbone_name == "resnet18_cub":
         from pytorchcv.model_provider import get_model as ptcv_get_model
-        model = ptcv_get_model(backbone_name, pretrained=True, root=args.out_dir)
+        model = ptcv_get_model(backbone_name, pretrained=True, root=download_root)
         backbone, model_top = ResNetBottom(model), ResNetTop(model)
         cub_mean_pxs = np.array([0.5, 0.5, 0.5])
         cub_std_pxs = np.array([2., 2., 2.])

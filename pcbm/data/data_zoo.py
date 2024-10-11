@@ -3,11 +3,14 @@ import torch
 import os
 
 
-def get_dataset(args, preprocess=None):
+def get_dataset(args, preprocess=None, download_root:str=None):
+    if download_root is None:
+        download_root = args.out_dir
+        
     if args.dataset == "cifar10":
-        trainset = datasets.CIFAR10(root=args.out_dir, train=True,
+        trainset = datasets.CIFAR10(root=download_root, train=True,
                                     download=True, transform=preprocess)
-        testset = datasets.CIFAR10(root=args.out_dir, train=False,
+        testset = datasets.CIFAR10(root=download_root, train=False,
                                     download=True, transform=preprocess)
         classes = trainset.classes
         class_to_idx = {c: i for (i,c) in enumerate(classes)}
@@ -19,9 +22,9 @@ def get_dataset(args, preprocess=None):
     
     
     elif args.dataset == "cifar100":
-        trainset = datasets.CIFAR100(root=args.out_dir, train=True,
+        trainset = datasets.CIFAR100(root=download_root, train=True,
                                     download=True, transform=preprocess)
-        testset = datasets.CIFAR100(root=args.out_dir, train=False,
+        testset = datasets.CIFAR100(root=download_root, train=False,
                                     download=True, transform=preprocess)
         classes = trainset.classes
         class_to_idx = {c: i for (i,c) in enumerate(classes)}
