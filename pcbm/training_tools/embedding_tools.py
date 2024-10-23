@@ -55,12 +55,12 @@ def load_or_compute_projections(args, backbone, posthoc_layer, train_loader, tes
     conceptbank_source = args.concept_bank.split("/")[-1].split(".")[0] 
     
     # To make it easier to analyize results/rerun with different params, we'll extract the embeddings and save them
-    train_file = f"train-embs_{args.dataset}__{args.backbone_name}__{conceptbank_source}.npy"
-    test_file = f"test-embs_{args.dataset}__{args.backbone_name}__{conceptbank_source}.npy"
-    train_proj_file = f"train-proj_{args.dataset}__{args.backbone_name}__{conceptbank_source}.npy"
-    test_proj_file = f"test-proj_{args.dataset}__{args.backbone_name}__{conceptbank_source}.npy"
-    train_lbls_file = f"train-lbls_{args.dataset}__{args.backbone_name}__{conceptbank_source}_lbls.npy"
-    test_lbls_file = f"test-lbls_{args.dataset}__{args.backbone_name}__{conceptbank_source}_lbls.npy"
+    train_file = f".cache/train-embs_{args.dataset}__{args.backbone_name.replace('/', '_')}__{conceptbank_source}.npy"
+    test_file = f".cache/test-embs_{args.dataset}__{args.backbone_name.replace('/', '_')}__{conceptbank_source}.npy"
+    train_proj_file = f".cache/train-proj_{args.dataset}__{args.backbone_name.replace('/', '_')}__{conceptbank_source}.npy"
+    test_proj_file = f".cache/test-proj_{args.dataset}__{args.backbone_name.replace('/', '_')}__{conceptbank_source}.npy"
+    train_lbls_file = f".cache/train-lbls_{args.dataset}__{args.backbone_name.replace('/', '_')}__{conceptbank_source}_lbls.npy"
+    test_lbls_file = f".cache/test-lbls_{args.dataset}__{args.backbone_name.replace('/', '_')}__{conceptbank_source}_lbls.npy"
     
 
     train_file = os.path.join(args.out_dir, train_file)
@@ -79,6 +79,7 @@ def load_or_compute_projections(args, backbone, posthoc_layer, train_loader, tes
         test_lbls = np.load(test_lbls_file)
 
     else:
+        os.makedirs(os.path.join(args.out_dir, ".cache/"))
         train_embs, train_projs, train_lbls = get_projections(args, backbone, posthoc_layer, train_loader)
         test_embs, test_projs, test_lbls = get_projections(args, backbone, posthoc_layer, test_loader)
 

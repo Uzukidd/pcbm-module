@@ -70,12 +70,9 @@ We provide the code to do this in `learn_concepts_multimodal.py`. You can run th
 python3 learn_concepts_multimodal.py --backbone-name="clip:RN50" --classes=cifar10 --out-dir=/home/ksas/Public/datasets/cifar10_concept_bank --recurse=1
 ```
 
-
-
 ```
 python3 learn_concepts_multimodal.py --backbone-name="clip:RN50" --classes=cifar100 --out-dir=/home/ksas/Public/datasets/cifar100_concept_bank --recurse=1
 ```
-
 
 Currently, we support CIFAR10/CIFAR100 for this approach. You can very easily add the set of class names in the script and obtain the concept bank for your own purpose.
 
@@ -93,12 +90,9 @@ python3 train_pcbm.py --concept-bank="/home/ksas/Public/datasets/cub_concept_ban
 python3 train_pcbm.py --concept-bank="/home/ksas/Public/datasets/cifar10_concept_bank/multimodal_concept_clip:RN50_cifar10_recurse:1.pkl" --dataset="cifar10" --backbone-name="clip:RN50" --out-dir=/home/ksas/Public/datasets/cifar10_concept_bank/ --lam=2e-4
 ```
 
-
-
 ```
 python3 train_pcbm.py --concept-bank="/home/ksas/Public/datasets/cifar100_concept_bank/multimodal_concept_clip:RN50_cifar100_recurse:1.pkl" --dataset="cifar100" --backbone-name="clip:RN50" --out-dir=/home/ksas/Public/datasets/cifar100_concept_bank/ --lam=2e-4
 ```
-
 
 Please see the `train_pcbm.py` file for the arguments / where the models are saved.
 
