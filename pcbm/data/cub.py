@@ -179,7 +179,7 @@ def load_cub_data(pkl_paths, use_attr, no_img, batch_size, uncertain_label=False
         loader = DataLoader(dataset, batch_sampler=sampler)
     else:
         loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, drop_last=drop_last)
-    return loader
+    return dataset, loader
 
 
 class CUBConceptDataset:
