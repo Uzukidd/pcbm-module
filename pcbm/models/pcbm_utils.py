@@ -1,9 +1,28 @@
 import torch
 import torch.nn as nn
 
+class CAV(nn.Module):
+
+    def __init__(self, cavs:torch.Tensor, 
+                 intercepts:torch.Tensor, 
+                 norms:torch.Tensor,
+                 names:list=None):
+        super().__init__()
+
+        self.cavs = cavs
+        self.intercepts = intercepts
+        self.norms = norms
+        self.names = names
+        self.n_concepts = self.cavs.shape[0]
+
+    def forward(self, emb:torch.Tensor):
+        # Computing the geometric margin to the decision boundary specified by CAV.
+        margins = (torch.matmul(self.cavs, emb.T) +
+           self.intercepts) / (self.norms)
+        return margins.T
 
 class PosthocLinearCBM(nn.Module):
-    def __init__(self, concept_bank, backbone_name, idx_to_class=None, n_classes=5):
+    def __init__(self, concept_bank, idx_to_class=None, n_classes=5):
         """
         PosthocCBM Linear Layer. 
         Takes an embedding as the input, outputs class-level predictions using only concept margins.
@@ -13,27 +32,23 @@ class PosthocLinearCBM(nn.Module):
             idx_to_class (dict, optional): A mapping from the output indices to the class names. Defaults to None.
             n_classes (int, optional): Number of classes in the classification problem. Defaults to 5.
         """
-        super(PosthocLinearCBM, self).__init__()
+        super().__init__()
         # Get the concept information from the bank
-        self.backbone_name = backbone_name
-        self.cavs = concept_bank.vectors
-        self.intercepts = concept_bank.intercepts
-        self.norms = concept_bank.norms
-        self.names = concept_bank.concept_names.copy()
-        self.n_concepts = self.cavs.shape[0]
+        self.CAV_layer = CAV(concept_bank.vectors, 
+                             concept_bank.intercepts, 
+                             concept_bank.norms,
+                             concept_bank.concept_names.copy())
 
         self.n_classes = n_classes
         # Will be used to plot classifier weights nicely
         self.idx_to_class = idx_to_class if idx_to_class else {i: i for i in range(self.n_classes)}
 
         # A single linear layer will be used as the classifier
-        self.classifier = nn.Linear(self.n_concepts, self.n_classes)
+        self.classifier = nn.Linear(self.CAV_layer.n_concepts, self.n_classes)
 
     def compute_dist(self, emb):
         # Computing the geometric margin to the decision boundary specified by CAV.
-        margins = (torch.matmul(self.cavs, emb.T) +
-           self.intercepts) / (self.norms)
-        return margins.T
+        return self.CAV_layer(emb)
 
     def forward(self, emb, return_dist=False):
         x = self.compute_dist(emb)
@@ -70,7 +85,7 @@ class PosthocLinearCBM(nn.Module):
             cls_weights = weights[idx]
             topk_vals, topk_indices = torch.topk(cls_weights, k=k)
             topk_indices = topk_indices.detach().cpu().numpy()
-            topk_concepts = [self.names[j] for j in topk_indices]
+            topk_concepts = [self.CAV_layer.names[j] for j in topk_indices]
             analysis_str = [f"Class : {cls}"]
             for j, c in enumerate(topk_concepts):
                 analysis_str.append(f"\t {j+1} - {c}: {topk_vals[j]:.3f}")
